@@ -64,16 +64,21 @@ def register():
     return render_template('register.html', title='Регистрация', form=form)
 
 
+@app.route('/', methods=['GET', 'POST'])
+def head():
+    return render_template('game.html', title='Главная')
+
+
+@app.route('/button', methods=['GET', 'POST'])
+def game():
+    return render_template('button.html')
+
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect("/")
-
-
-@app.route('/', methods=['GET', 'POST'])
-def head():
-    return render_template('base.html', title='Главная')
 
 
 @app.errorhandler(404)

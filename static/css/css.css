@@ -1,24 +1,16 @@
-table {
-font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
-font-size: 14px;
-border-collapse: collapse;
-text-align: center;
-}
-th {
-background: #AFCDE7;
-color: white;
-text-shadow: 0 1px 1px #2D2020;
-padding: 10px 20px;
-}
-th, td {
-border-style: solid;
-border-width: 0 1px 1px 0;
-border-color: white;
-}
-td {
-background: #D8E6F3;
-}
 .opa {
 opacity: 0.4;
 padding: 0px 15px;
+html, body {
+    height: 100%;
+    margin: 0;
+}
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+canvas {
+    border: 1px solid blue;
+}
 }
