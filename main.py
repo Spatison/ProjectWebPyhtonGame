@@ -1,8 +1,8 @@
-from flask import Flask, render_template, redirect, jsonify, make_response
+from flask import Flask, render_template, redirect, jsonify, make_response, request
 from data import db_session, users_resource
 from data.form import LoginForm, RegisterForm
 from data.users import User
-from flask_login import LoginManager, login_user, login_required, logout_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import Api
 
 
@@ -66,12 +66,9 @@ def register():
 
 @app.route('/', methods=['GET', 'POST'])
 def head():
-    return render_template('game.html', title='Главная')
-
-
-@app.route('/button', methods=['GET', 'POST'])
-def game():
-    return render_template('button.html')
+    if current_user.is_authenticated:
+        return render_template('game.html', title='Главная', bestscore=current_user.best_score)
+    return render_template('game.html', title='Главная', bestscore=0)
 
 
 @app.route('/logout')
@@ -89,6 +86,15 @@ def not_found(error):
 @app.errorhandler(400)
 def bad_request(_):
     return make_response(jsonify({'error': 'Bad Request'}), 400)
+
+
+@app.route('/process', methods=['POST'])
+def process():
+    data = request.get_json()
+    current_user.best_score = int(data['bestscore'])
+    db_sess = db_session.create_session()
+    db_sess.merge(current_user)
+    db_sess.commit()
 
 
 def main():

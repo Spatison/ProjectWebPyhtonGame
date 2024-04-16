@@ -1,10 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
+  <div class="stat">
+    <h4 class="score">Score:<span id="your-score"></span></h4>
+    <h4 class="best-score">Best score:<span id="your-best-score"></span></h4>
+  </div>
   <canvas width="400" height="400" id="game"></canvas>
   <script>
+    const yourScore = document.getElementById("your-score");
+    const yourBestScore = document.getElementById("your-best-score");
     var canvas = document.getElementById('game');
     var context = canvas.getContext('2d');
+    var bestscore = {{ bestscore }}
 
     // the canvas width & height, snake x & y, and the apple x & y, all need to be a multiples of the grid size in order for collision detection to work
     // (e.g. 16 * 25 = 400)
@@ -98,22 +105,63 @@
 
         // check collision with all cells after this one (modified bubble sort)
         for (var i = index + 1; i < snake.cells.length; i++) {
-
-          // snake occupies same space as a body part. reset game
-          if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
-            var restart = document.createElement('button')
-            button.innerText = 'Can you click me?'
-            document.body.appendChild(button)
-            snake.x = 160;
-            snake.y = 160;
-            snake.cells = [];
-            snake.maxCells = 4;
-            snake.dx = grid;
-            snake.dy = 0;
-
-            apple.x = getRandomInt(0, 25) * grid;
-            apple.y = getRandomInt(0, 25) * grid;
+          function updateYourScore(score) {
+            if (score > 0) {
+              yourScore.textContent = score;
+            }
+            else {
+              yourScore.textContent = 0;
+            }
+            if (score > bestscore){
+              bestscore = score
+                $.ajax({
+                url: '/process',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ 'bestscore': bestscore }),
+                success: function(response) {
+                    document.getElementById('output').innerHTML = response;
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+            }
+            yourBestScore.textContent = bestscore;
           }
+          if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+            snake.cells = [];
+            snake.maxCells = 0;
+
+            apple.x = 12 * grid;
+            apple.y = 12 * grid;
+
+            var restart = document.createElement('button')
+            restart.innerText = 'restart'
+
+            restart.style.position = 'absolute'; // setting the width to 200px
+            restart.style.top = '50%'; // setting the height to 200px
+            restart.style.left = '50%'; // setting the background color to teal
+            restart.style.transform = 'translate(-50%, -50%)'; // setting the color to white
+
+            document.body.appendChild(restart)
+
+            restart.addEventListener ("click", function() {
+
+              this.parentNode.removeChild(restart);
+
+              snake.x = 160;
+              snake.y = 160;
+              snake.cells = [];
+              snake.maxCells = 4;
+              snake.dx = grid;
+              snake.dy = 0;
+
+              apple.x = getRandomInt(0, 25) * grid;
+              apple.y = getRandomInt(0, 25) * grid;
+            });
+          }
+        updateYourScore(snake.maxCells - 4);
         }
       });
     }
