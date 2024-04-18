@@ -66,9 +66,11 @@ def register():
 
 @app.route('/', methods=['GET', 'POST'])
 def head():
+    db_sess = db_session.create_session()
+    best = sorted(db_sess.query(User), key=lambda x: User.best_score)
     if current_user.is_authenticated:
-        return render_template('game.html', title='Главная', bestscore=current_user.best_score)
-    return render_template('game.html', title='Главная', bestscore=0)
+        return render_template('game.html', title='Главная', bestscore=current_user.best_score, best=best)
+    return render_template('game.html', title='Главная', bestscore=0, best=best)
 
 
 @app.route('/logout')
